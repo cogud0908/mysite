@@ -12,10 +12,12 @@ import java.util.List;
 import com.douzone.mysite.vo.GuestbookVo;
 
 public class GuestbookDao {
-	public int delete( GuestbookVo vo ) {
-		int count = 0;
+	public boolean delete( GuestbookVo vo ) {
+		int no = 10000;
+		boolean flag= false;
 		Connection conn = null;
 		PreparedStatement pstmt = null;
+		ResultSet rs = null;
 
 		try {
 			conn = getConnection();
@@ -30,7 +32,22 @@ public class GuestbookDao {
 			pstmt.setLong( 1, vo.getNo() );
 			pstmt.setString( 2, vo.getPassword() );
 
-			count = pstmt.executeUpdate();
+			pstmt.executeUpdate();
+
+			sql =
+				"   select count(*)" + 
+				"     from guestbook"+ 
+			    "   where no = "+vo.getNo(); 
+			
+			pstmt = conn.prepareStatement(sql);		
+			rs = pstmt.executeQuery( sql );
+			
+			if(rs.next()) {
+				no = rs.getInt(1);
+			}
+			
+			if(no == 0) flag = true;
+			
 		} catch (SQLException e) {
 			System.out.println("error :" + e);
 		} finally {
@@ -47,13 +64,15 @@ public class GuestbookDao {
 			}
 		}
 
-		return count;		
+		return flag;		
 	}
 	
 	public int insert(GuestbookVo vo) {
-		int count = 0;
+		int no = 0;
 		Connection conn = null;
+		Statement stmt = null;
 		PreparedStatement pstmt = null;
+		ResultSet rs = null;
 
 		try {
 			conn = getConnection();
@@ -68,8 +87,20 @@ public class GuestbookDao {
 			pstmt.setString(2, vo.getPassword());
 			pstmt.setString(3, vo.getMessage());
 
-			count = pstmt.executeUpdate();
-
+			pstmt.executeUpdate();
+			
+			/*
+			 * 방금 들어간 row에 Primary Key 받아오는 방법
+			 * "select last_insert_id()" <--sql
+			 */
+			stmt = conn.createStatement();
+			sql = "select max(last_insert_id(no)) from guestbook";	
+			rs = stmt.executeQuery( sql );
+			
+			if(rs.next()) {
+				no = rs.getInt(1);
+			}
+			
 		} catch (SQLException e) {
 			System.out.println("error :" + e);
 		} finally {
@@ -86,7 +117,7 @@ public class GuestbookDao {
 			}
 		}
 
-		return count;
+		return no;
 	}
 
 	public List<GuestbookVo> getList() {
@@ -114,7 +145,7 @@ public class GuestbookDao {
 
 			// 결과 가져오기(사용하기)
 			while (rs.next()) {
-				Long no = rs.getLong(1);
+				int no = rs.getInt(1);
 				String name = rs.getString(2);
 				String message = rs.getString(3);
 				String regDate = rs.getString(4);
@@ -163,5 +194,121 @@ public class GuestbookDao {
 		} 
 		
 		return conn;
+	}
+
+	public List<GuestbookVo> getList(int page) {
+		List<GuestbookVo> list = new ArrayList<GuestbookVo>();
+
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+				
+		try {
+			conn = getConnection();
+
+			// SQL문 준비
+			String sql =
+				"   select no," + 
+				"          name," + 
+				"	       message," + 
+				"     	   date_format(reg_date, '%Y-%m-%d %h:%i:%s')" + 
+				"     from guestbook" + 
+				" order by reg_date desc" +
+				" limit "+((page-1)*5)+", 5 ";
+
+			pstmt = conn.prepareStatement(sql);		
+			rs = pstmt.executeQuery( sql );
+
+			// 결과 가져오기(사용하기)
+			while (rs.next()) {
+				int no = rs.getInt(1);
+				String name = rs.getString(2);
+				String message = rs.getString(3);
+				String regDate = rs.getString(4);
+
+				GuestbookVo vo = new GuestbookVo();
+				vo.setNo(no);
+				vo.setName(name);
+				vo.setMessage( message );
+				vo.setRegDate( regDate );
+
+				list.add(vo);
+			}
+		} catch (SQLException e) {
+			System.out.println("error :" + e);
+		} finally {
+			// 자원 정리
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (pstmt != null) {
+					pstmt.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+
+		return list;
+	}
+
+	public GuestbookVo get(int buffer_no) {
+		
+		GuestbookVo vo = null;
+		
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+				
+		try {
+			conn = getConnection();
+
+			// SQL문 준비
+			String sql =
+				"   select name," + 
+				"	       message," + 
+				"     	   date_format(reg_date, '%Y-%m-%d %h:%i:%s')" + 
+				"     from guestbook" +
+				" where no = "+buffer_no;
+
+			pstmt = conn.prepareStatement(sql);		
+			rs = pstmt.executeQuery( sql );
+
+			// 결과 가져오기(사용하기)
+			if (rs.next()) {
+				String name = rs.getString(1);
+				String message = rs.getString(2);
+				String regDate = rs.getString(3);
+
+				vo = new GuestbookVo();
+				vo.setName(name);
+				vo.setMessage( message );
+				vo.setRegDate( regDate );
+			}
+						
+		} catch (SQLException e) {
+			System.out.println("error :" + e);
+		} finally {
+			// 자원 정리
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (pstmt != null) {
+					pstmt.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+
+		return vo;
 	}	
 }

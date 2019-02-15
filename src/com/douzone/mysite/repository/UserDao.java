@@ -227,5 +227,59 @@ public class UserDao {
 		return count;
 	}
 
+	public UserVo get(String email) {
+		
+		UserVo result = null;
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		
+		try {
+			conn = getConnection();
+
+			String sql = 
+				" select no, name" + 
+				"   from user " + 
+				" where email = ?";
+			pstmt = conn.prepareStatement(sql);
+
+			pstmt.setString(1, email);
+
+			rs = pstmt.executeQuery();
+			
+			if(rs.next())
+			{
+				int no = rs.getInt(1);
+				String name = rs.getString(2);
+				
+				result = new UserVo();
+				result.setNo(no);
+				result.setName(name);
+			}
+			
+
+		} catch (SQLException e) {
+			System.out.println("error :" + e);
+		} finally {
+			// 자원 정리
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (pstmt != null) {
+					pstmt.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+
+		return result;
+		
+	}
+
 	
 }
