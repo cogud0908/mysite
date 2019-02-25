@@ -71,7 +71,7 @@
 				</div>			
 				<div>
 					<c:if test="${!empty loginuser }">
-					<form action = "${pageContext.servletContext.contextPath }/board">
+					<form action = "${pageContext.servletContext.contextPath }/board/message">
 					<input type="hidden" name="no" value="${boardview.no }">
 					<input type="hidden" name="a" value="message">
 					<table class = "tbl-ex">

@@ -414,7 +414,7 @@ public class BoardDao {
 					"date_format(write_date, '%Y-%m-%d %h:%i:%s'), b.name " + 
 					"from board a, user b " + 
 					"where a.user_no = b.no " + 
-					"and title like '%"+search+"%' or contents like '%"+search+"%' or name like '%"+search+"%' " +
+					"and title like '%"+search+"%'" +
 					"group by a.no "+
 					"order by g_no desc , o_no asc " +
 					"limit "+10+" offset "+(page-1)*10;

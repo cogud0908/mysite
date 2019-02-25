@@ -32,12 +32,7 @@ public class WriteAction implements Action {
 			String contents = request.getParameter("content");
 
 			if (title.equals("")) {
-				PrintWriter out = response.getWriter();
-
-				out.println("<script type=text/javascript>");
-				out.println("alert('제목에 내용이 없습니다!');");
-				out.println("</script>");
-				
+								
 			} else {
 
 				BoardVo vo = new BoardVo();
@@ -57,12 +52,7 @@ public class WriteAction implements Action {
 			String contents = request.getParameter("content");
 
 			if (title.equals("")) {
-				PrintWriter out = response.getWriter();
-
-				out.println("<script type=text/javascript>");
-				out.println("alert('제목에 내용이 없습니다!');");
-				out.println("</script>");
-
+				
 			} else {
 
 				BoardVo vo = new BoardVo();

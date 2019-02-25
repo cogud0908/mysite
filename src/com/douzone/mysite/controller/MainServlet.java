@@ -7,6 +7,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.catalina.core.ApplicationContext;
+
 import com.douzone.mvc.action.AbstractActionFactory;
 import com.douzone.mvc.action.Action;
 import com.douzone.mvc.util.WebUtils;
@@ -20,7 +22,7 @@ public class MainServlet extends HttpServlet {
 	public void init() throws ServletException {
 		
 		String configPath = getServletConfig().getInitParameter("config");
-		
+			
 		System.out.println("init() called" + configPath );
 	}
 
